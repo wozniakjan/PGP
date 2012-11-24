@@ -1,10 +1,9 @@
--- Ray-tracer project PGR 2011
 -- Png module 
 
 -- Stolen from
 -- http://www.haskell.org/haskellwiki/Library/PNG
 {-
-A small library for creating monochrome PNG files.
+A small library for creating PNG files.
 This file is placed into the public domain.
 Dependencies: Zlib.
 -}

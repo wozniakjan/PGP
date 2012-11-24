@@ -29,7 +29,8 @@ module Math
     getNormal,
     neg,
     eps,
-    isPointOnRay
+    isPointOnRay,
+    squared_mag
 ) where
 
 eps :: Double

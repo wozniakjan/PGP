@@ -11,6 +11,9 @@ $(BIN)$(PROJ): $(OBJ) $(BIN)
 	ghc --make $(OBJ) -o $(BIN)$(PROJ)
 
 
+run:
+	$(BIN)$(PROJ)
+
 $(BIN): 
 	$(shell mkdir $(BIN))
 
