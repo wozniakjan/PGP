@@ -20,8 +20,13 @@ ascii_art :: [[(Int, Int, Int)]] -> String
 ascii_art []     = "n"
 ascii_art (h:t)  = (ascii h) ++ (ascii_art t)
 
+transpose               :: [[a]] -> [[a]]
+transpose []             = []
+transpose ([]   : xss)   = transpose xss
+transpose ((x:xs) : xss) = (x : [h | (h:_) <- xss]) : transpose (xs : [ t | (_:t) <- xss])
+
 main = B.writeFile "picture.png" (png (convert (raytracer)))
 --main = writeFile "asci" (ascii_art (convert (raytracer)))
     where 
-        convert l = split_every (view_width) (map (color_to_tuple) l)
+        convert l = transpose (split_every (view_width) (map (color_to_tuple) l))
 
