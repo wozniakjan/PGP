@@ -8,6 +8,11 @@ module Math
     eps,
     neg,
     xor,
+    offset,
+    offset_points_xy,
+    offset_points_xyz,
+    uv_map,
+    mag,
 
     normal_vector,
     normalize,
@@ -20,11 +25,30 @@ import Data_types
 eps :: Double
 eps = 1.1
 
+uv_map :: Dim3 -> Shape -> (Double, Double)
+uv_map point sp@(Sphere c r) = (u, v)
+    where 
+        d = normalize (point `sub` c)
+        u = 0.5 - ( (atan2 (z d) (x d)) / (2*pi) )
+        v = 0.5 - ( (asin (y d)) / (2*pi) )
+
 xor :: Bool -> Bool -> Bool
 xor True b  = not b
 xor False b = b
 
 split_every n = takeWhile (not.null) . map (take n) . iterate (drop n)
+
+
+offset_points_xy :: Double -> [Dim3]
+offset_points_xy n = [(Point (n) (n)  0), (Point (-n) (n)  0),
+                    (Point (n) (-n) 0), (Point (-n) (-n) 0)]
+
+offset_points_xyz :: Double -> [Dim3]
+offset_points_xyz n = [(Point (n) (n)  0), (Point (-n) (n)  0),
+                    (Point (n) (-n) 0), (Point (-n) (-n) 0)]
+
+offset :: Dim3 -> Dim3 -> Dim3
+offset a b = Point ((x a)+(x b)) ((y a)+(y b)) ((z a)+(z b))
 
 add :: Dim3 -> Dim3 -> Dim3
 add a b = Vector ((x a)+(x b)) ((y a)+(y b)) ((z a)+(z b))

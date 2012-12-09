@@ -16,7 +16,9 @@ module Data_types(
     shape, color, material, texture,
     red, green, blue,
     ambient, diffuse, specular, 
-    shiny, reflectivity
+    shiny, reflectivity,
+    average_colors,
+    mul_color
 ) where
 
 
@@ -52,12 +54,9 @@ instance Num Color where
     signum = error "N/A"
     fromInteger = error "N/A"
 
-sat :: Double-> Double
-sat a
-    | a > 1.0 = 1.0
-    | a < 0.0 = 0.0
-    | otherwise = a
-
+instance Fractional Color where
+    (/) (Color a b c) (Color x y z) = Color (a/x) (b/y) (c/z)
+    fromRational = error "N/A"
 
 data PhongColor = PhongColor { diffuse :: Color, ambient :: Color, specular :: Color } 
 	deriving (Eq, Show, Ord)
@@ -72,3 +71,25 @@ instance Num PhongColor where
 
 data Material = Material { shiny :: Double, reflectivity :: Double, texture :: Int }
     deriving(Show, Eq, Ord)
+
+div_color :: Color -> Double -> Color
+div_color (Color r g b) i = (Color (r/i) (g/i) (b/i))
+
+mul_color :: Double -> Color -> Color
+mul_color x (Color r g b) = (Color (x*r) (x*g) (x*b))
+
+plus_non_sat :: Color -> Color -> Color
+plus_non_sat (Color a b c) (Color x y z) = (Color (a+x) (b+y) (c+z))
+
+average_colors :: [Color] -> Color
+average_colors list = sum `div_color` count
+    where
+        sum = foldr (plus_non_sat) (Color 0 0 0) list
+        count = fromIntegral (length list)
+
+sat :: Double-> Double
+sat a
+    | a > 1.0 = 1.0
+    | a < 0.0 = 0.0
+    | otherwise = a
+

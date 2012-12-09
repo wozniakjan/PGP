@@ -7,14 +7,30 @@ import Math
 import Data_types
 import Scene
 import Phong
+import System.Random
+import System.IO.Unsafe
 
 get_depth :: Int
-get_depth = 3
+get_depth = 5
+
+super_sampling :: Int -> Ray -> Color
+super_sampling depth ray@(Ray vector source dest) = average_colors colors
+    where
+        colors = map (ray_trace depth) rays
+        rays = map (make_ray) v_d
+        make_ray vd = Ray (fst vd) source (snd vd)
+        v_d = zip vectors dests
+        vectors = map (`sub` source) dests
+        dests = map (`offset` dest) diffs
+        diffs =  offset_points_xy (step/2.0)
+                
 
 raytracer :: [Color]
 raytracer = map (rt) view_grid
     where
-        rt point = ray_trace get_depth (Ray (normalize (point `sub` camera_position)) camera_position point)
+        --rt point = super_sampling get_depth (Ray (vec point) camera_position point)
+        rt point = ray_trace get_depth (Ray (vec point) camera_position point)
+        vec point = normalize (point `sub` camera_position)
 
 ray_trace :: Int -> Ray -> Color
 ray_trace depth ray@(Ray vector source dest) 
@@ -29,7 +45,6 @@ ray_trace depth ray@(Ray vector source dest)
         shade = get_shade (point closest_intersection)
         apply_shade (PhongColor a d s) = 
             (PhongColor a ((fst shade) `mul_color` d) ((snd shade) `mul_color` s))
-        --obj_reflectivity = reflectivity (material (object closest_intersection))
         reflection_color = reflection (depth-1) closest_intersection
 
 map_filter_distance :: Dim3 -> [Intersection] -> [(Double, Intersection)]
@@ -47,6 +62,11 @@ is_on_ray ray (Intersection p _ _ _)
         seg_b = distance (dest ray) p
 
 
+-- random generator for get_shade
+-- unsafe_random :: Int
+-- unsafe_random = unsafePerformIO (randomRIO (1, 10))
+
+
 -- Returns coeficient of pixel color whether it is in shade or not
 -- fst - 0.2 if pixel is in shade (darker color)
 -- fst - 1 if pixel is not in shade (color stays the same)
@@ -57,10 +77,14 @@ get_shade point
     | intersects == [] = (1, 1)
     | otherwise = (0.2, 0.0)
     where
-        ray = (Ray (light_position `sub` point) point light_position)
+        light' = light_position --`offset` p
+        ray = (Ray (light' `sub` point) point light')
         all_intersections = concat (map (get_intersections ray) scene)
         intersects = filter (is_on_ray ray) all_intersections
-
+        step' = step * 3
+--        p = (Point (unsafePerformIO (randomRIO (-step', step')))
+--                   (unsafePerformIO (randomRIO (-step', step')))  
+--                   (unsafePerformIO (randomRIO (-step', step')))  )
 
 reflection :: Int -> Intersection -> Color			
 reflection 0 _ = black_color
@@ -68,13 +92,6 @@ reflection depth intersection
     | refl_coef == 0 = black_color
     | otherwise = refl_coef `mul_color` reflected_color
     where
---        refl_coef = reflectivity (material (object intersection))
---        n = normalize (normal intersection)
---        v = normalize (neg(vector (ray intersection)))
---        k = 2*(n `dot_product` v)
---        p = (point intersection)
---        reflected_color = ray_trace depth out_ray
---        out_ray = (Ray n p (p `add` n))
         refl_coef = reflectivity (material (object intersection))
         k = 2 * (n `dot_product` v)
         n = normalize (normal intersection)
@@ -94,17 +111,3 @@ is_point_on_ray (Ray vector source _) point =
         in_dir2 (get) (sign1) (sign2) = in_dir1 (get) (sign1) || in_dir1 (get) (sign2)
 
 
---trace_reflect :: Int -> Ray -> Object -> Color
---trace_reflect depth ray@(Ray vector source dest) exclude
---    | excluded_intersections == [] = background_color
---    | otherwise = reflection_color + (sum_phong (apply_shade get_phong))
---    where
---        all_intersections = concat (map (get_intersections ray) scene)
---        intersections = map_filter_distance dest all_intersections
---        excluded_intersections = filter ((is_point_on_ray ray) . (point . snd)) intersections
---        closest_intersection = snd (minimum excluded_intersections) 
---        get_phong = phong closest_intersection camera_position light_position
---        shade = get_shade (point closest_intersection)
---        apply_shade (PhongColor a d s) = 
---            (PhongColor a ((fst shade) `mul_color` d) ((snd shade) `mul_color` s))
---        reflection_color = reflection (depth-1) closest_intersection

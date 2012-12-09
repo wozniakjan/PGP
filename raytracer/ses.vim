@@ -92,7 +92,7 @@ set wildmenu
 set wildmode=list:longest
 set window=0
 set winheight=150
-set winwidth=100
+set winwidth=80
 set nowritebackup
 let s:so_save = &so | let s:siso_save = &siso | set so=0 siso=0
 let v:this_session=expand("<sfile>:p")
@@ -120,18 +120,18 @@ badd +1 ~/projects/school/GMU/proj/src/square.cl
 badd +58 ~/projects/school/GMU/proj/src/jpeg_util.h
 badd +166 ~/projects/school/GMU/proj/src/jpeg_util.cpp
 badd +1 Makefile
-badd +15 src/Math.hs
-badd +1 src/Phong.hs
+badd +106 src/Math.hs
+badd +25 src/Phong.hs
 badd +1 backup/Math.hs
 badd +1 backup/Materials.hs
 badd +1 src/Materials.hs
 badd +1 backup/Phong.hs
 badd +1 backup/Png.hs
 badd +12 src/Png.hs
-badd +1 backup/Raytracer.hs
-badd +1 src/Raytracer.hs
+badd +72 backup/Raytracer.hs
+badd +17 src/Raytracer.hs
 badd +1 backup/Scene.hs
-badd +21 src/Scene.hs
+badd +27 src/Scene.hs
 badd +1 backup/main.hs
 badd +11 src/main.hs
 badd +36 src/Data_types.hs
@@ -259,8 +259,8 @@ set nosplitbelow
 set nosplitright
 wincmd t
 set winheight=1 winwidth=1
-exe 'vert 1resize ' . ((&columns * 102 + 96) / 193)
-exe 'vert 2resize ' . ((&columns * 90 + 96) / 193)
+exe 'vert 1resize ' . ((&columns * 92 + 96) / 193)
+exe 'vert 2resize ' . ((&columns * 100 + 96) / 193)
 argglobal
 setlocal autoindent
 setlocal nobinary
@@ -461,15 +461,15 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 1 - ((0 * winheight(0) + 26) / 52)
+let s:l = 54 - ((48 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-1
+54
 normal! 0
 wincmd w
-exe 'vert 1resize ' . ((&columns * 102 + 96) / 193)
-exe 'vert 2resize ' . ((&columns * 90 + 96) / 193)
+exe 'vert 1resize ' . ((&columns * 92 + 96) / 193)
+exe 'vert 2resize ' . ((&columns * 100 + 96) / 193)
 tabedit src/Math.hs
 set splitbelow splitright
 wincmd _ | wincmd |
@@ -578,11 +578,11 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 99 - ((43 * winheight(0) + 26) / 52)
+let s:l = 170 - ((43 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-99
+170
 normal! 034l
 wincmd w
 argglobal
@@ -682,12 +682,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 233 - ((48 * winheight(0) + 26) / 52)
+let s:l = 203 - ((17 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-233
-normal! 07l
+203
+normal! 040l
 wincmd w
 exe 'vert 1resize ' . ((&columns * 100 + 96) / 193)
 exe 'vert 2resize ' . ((&columns * 92 + 96) / 193)
@@ -701,8 +701,8 @@ set nosplitbelow
 set nosplitright
 wincmd t
 set winheight=1 winwidth=1
-exe 'vert 1resize ' . ((&columns * 80 + 96) / 193)
-exe 'vert 2resize ' . ((&columns * 112 + 96) / 193)
+exe 'vert 1resize ' . ((&columns * 100 + 96) / 193)
+exe 'vert 2resize ' . ((&columns * 92 + 96) / 193)
 argglobal
 setlocal autoindent
 setlocal nobinary
@@ -799,12 +799,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 1 - ((0 * winheight(0) + 26) / 52)
+let s:l = 25 - ((24 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-1
-normal! 0
+25
+normal! 088l
 wincmd w
 argglobal
 edit backup/Phong.hs
@@ -903,16 +903,16 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 1 - ((0 * winheight(0) + 26) / 52)
+let s:l = 11 - ((10 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-1
-normal! 0
+11
+normal! 06l
 wincmd w
-exe 'vert 1resize ' . ((&columns * 80 + 96) / 193)
-exe 'vert 2resize ' . ((&columns * 112 + 96) / 193)
-tabedit src/Raytracer.hs
+exe 'vert 1resize ' . ((&columns * 100 + 96) / 193)
+exe 'vert 2resize ' . ((&columns * 92 + 96) / 193)
+tabedit backup/Raytracer.hs
 set splitbelow splitright
 wincmd _ | wincmd |
 vsplit
@@ -922,8 +922,8 @@ set nosplitbelow
 set nosplitright
 wincmd t
 set winheight=1 winwidth=1
-exe 'vert 1resize ' . ((&columns * 102 + 96) / 193)
-exe 'vert 2resize ' . ((&columns * 90 + 96) / 193)
+exe 'vert 1resize ' . ((&columns * 96 + 96) / 193)
+exe 'vert 2resize ' . ((&columns * 96 + 96) / 193)
 argglobal
 setlocal autoindent
 setlocal nobinary
@@ -1020,15 +1020,15 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 13 - ((12 * winheight(0) + 26) / 52)
+let s:l = 79 - ((40 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-13
-normal! 0
+79
+normal! 042l
 wincmd w
 argglobal
-edit backup/Raytracer.hs
+edit src/Raytracer.hs
 setlocal autoindent
 setlocal nobinary
 setlocal bufhidden=
@@ -1124,15 +1124,15 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 1 - ((0 * winheight(0) + 26) / 52)
+let s:l = 32 - ((31 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-1
-normal! 0
+32
+normal! 07l
 wincmd w
-exe 'vert 1resize ' . ((&columns * 102 + 96) / 193)
-exe 'vert 2resize ' . ((&columns * 90 + 96) / 193)
+exe 'vert 1resize ' . ((&columns * 96 + 96) / 193)
+exe 'vert 2resize ' . ((&columns * 96 + 96) / 193)
 tabedit src/Scene.hs
 set splitbelow splitright
 wincmd _ | wincmd |
@@ -1241,11 +1241,11 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 24 - ((23 * winheight(0) + 26) / 52)
+let s:l = 164 - ((33 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-24
+164
 normal! 016l
 wincmd w
 argglobal
@@ -1345,12 +1345,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 34 - ((33 * winheight(0) + 26) / 52)
+let s:l = 111 - ((47 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-34
-normal! 01l
+111
+normal! 0
 wincmd w
 exe 'vert 1resize ' . ((&columns * 100 + 96) / 193)
 exe 'vert 2resize ' . ((&columns * 92 + 96) / 193)
@@ -1462,12 +1462,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 26 - ((25 * winheight(0) + 26) / 52)
+let s:l = 30 - ((29 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-26
-normal! 042l
+30
+normal! 09l
 wincmd w
 argglobal
 edit backup/main.hs
@@ -1577,10 +1577,16 @@ exe 'vert 1resize ' . ((&columns * 100 + 96) / 193)
 exe 'vert 2resize ' . ((&columns * 92 + 96) / 193)
 tabedit src/Data_types.hs
 set splitbelow splitright
+wincmd _ | wincmd |
+vsplit
+1wincmd h
+wincmd w
 set nosplitbelow
 set nosplitright
 wincmd t
 set winheight=1 winwidth=1
+exe 'vert 1resize ' . ((&columns * 92 + 96) / 193)
+exe 'vert 2resize ' . ((&columns * 100 + 96) / 193)
 argglobal
 setlocal autoindent
 setlocal nobinary
@@ -1677,12 +1683,119 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 2 - ((1 * winheight(0) + 26) / 52)
+let s:l = 20 - ((19 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-2
+20
 normal! 018l
+wincmd w
+argglobal
+edit src/Data_types.hs
+setlocal autoindent
+setlocal nobinary
+setlocal bufhidden=
+setlocal buflisted
+setlocal buftype=
+setlocal nocindent
+setlocal cinkeys=0{,0},0),:,0#,!^F,o,O,e
+setlocal cinoptions=
+setlocal cinwords=if,else,while,do,for,switch
+setlocal colorcolumn=
+setlocal comments=s1fl:{-,mb:-,ex:-},:--
+setlocal commentstring=--\ %s
+setlocal complete=.,w,b,u,t,i
+setlocal completefunc=
+setlocal nocopyindent
+setlocal cryptmethod=
+setlocal nocursorbind
+setlocal nocursorcolumn
+setlocal nocursorline
+setlocal define=
+setlocal dictionary=
+setlocal nodiff
+setlocal equalprg=
+setlocal errorformat=
+setlocal expandtab
+if &filetype != 'haskell'
+setlocal filetype=haskell
+endif
+setlocal foldcolumn=0
+setlocal foldenable
+setlocal foldexpr=0
+setlocal foldignore=#
+setlocal foldlevel=0
+setlocal foldmarker={{{,}}}
+setlocal foldmethod=manual
+setlocal foldminlines=1
+setlocal foldnestmax=20
+setlocal foldtext=foldtext()
+setlocal formatexpr=
+setlocal formatoptions=croql
+setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
+setlocal grepprg=
+setlocal iminsert=0
+setlocal imsearch=0
+setlocal include=
+setlocal includeexpr=
+setlocal indentexpr=
+setlocal indentkeys=0{,0},:,0#,!^F,o,O,e
+setlocal noinfercase
+setlocal iskeyword=@,48-57,_,192-255
+setlocal keywordprg=
+set linebreak
+setlocal linebreak
+setlocal nolisp
+setlocal nolist
+setlocal makeprg=
+setlocal matchpairs=(:),{:},[:]
+setlocal modeline
+setlocal modifiable
+setlocal nrformats=octal,hex
+setlocal nonumber
+setlocal numberwidth=4
+setlocal omnifunc=
+setlocal path=
+setlocal nopreserveindent
+setlocal nopreviewwindow
+setlocal quoteescape=\\
+setlocal noreadonly
+setlocal norelativenumber
+setlocal noscrollbind
+setlocal shiftwidth=4
+setlocal noshortname
+setlocal smartindent
+setlocal softtabstop=0
+setlocal nospell
+setlocal spellcapcheck=
+setlocal spellfile=
+setlocal spelllang=en
+setlocal statusline=
+setlocal suffixesadd=
+setlocal noswapfile
+setlocal synmaxcol=3000
+if &syntax != 'haskell'
+setlocal syntax=haskell
+endif
+setlocal tabstop=4
+setlocal tags=
+setlocal textwidth=500
+setlocal thesaurus=
+setlocal undofile
+setlocal nowinfixheight
+setlocal nowinfixwidth
+setlocal wrap
+setlocal wrapmargin=0
+silent! normal! zE
+let s:l = 72 - ((56 * winheight(0) + 26) / 52)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+72
+normal! 0
+wincmd w
+exe 'vert 1resize ' . ((&columns * 92 + 96) / 193)
+exe 'vert 2resize ' . ((&columns * 100 + 96) / 193)
 tabedit src/test.hs
 set splitbelow splitright
 wincmd _ | wincmd |
@@ -1693,8 +1806,8 @@ set nosplitbelow
 set nosplitright
 wincmd t
 set winheight=1 winwidth=1
-exe 'vert 1resize ' . ((&columns * 96 + 96) / 193)
-exe 'vert 2resize ' . ((&columns * 96 + 96) / 193)
+exe 'vert 1resize ' . ((&columns * 100 + 96) / 193)
+exe 'vert 2resize ' . ((&columns * 92 + 96) / 193)
 argglobal
 setlocal autoindent
 setlocal nobinary
@@ -1902,14 +2015,14 @@ normal! zt
 5
 normal! 0
 wincmd w
-exe 'vert 1resize ' . ((&columns * 96 + 96) / 193)
-exe 'vert 2resize ' . ((&columns * 96 + 96) / 193)
-tabnext 8
+exe 'vert 1resize ' . ((&columns * 100 + 96) / 193)
+exe 'vert 2resize ' . ((&columns * 92 + 96) / 193)
+tabnext 6
 if exists('s:wipebuf')
   silent exe 'bwipe ' . s:wipebuf
 endif
 unlet! s:wipebuf
-set winheight=150 winwidth=100 shortmess=filnxtToO
+set winheight=150 winwidth=80 shortmess=filnxtToO
 let s:sx = expand("<sfile>:p:r")."x.vim"
 if file_readable(s:sx)
   exe "source " . fnameescape(s:sx)

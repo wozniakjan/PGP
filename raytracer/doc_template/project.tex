@@ -22,8 +22,8 @@
 \renewcommand\linenumberfont{\normalfont\tiny\color{blue}}
 
 
-\title{Jak psat dokumentaci k projektum}
-\author{Franta Loginovič <xlogin00@stud.fit.vutbr.cz>}
+\title{Vykreslování sledováním paprsku s antialiasingem}
+\author{Jan Wozniak <xwozni00@stud.fit.vutbr.cz>}
 \date{\today}
 
 
@@ -36,65 +36,139 @@
 
 \section{Úvod}
 
-Tady by mělo být napsané o čem práce je a k čemu to je dobré. Například: Tato práce se zabývá akcelerací
-raytracingu na CUDA. Raytracing se používá ve fotorealistické grafice a herní grafice. CUDA umožňuje
-akceleraci ...
+Úkolem projektu bylo vytvořit jednoduchý raytracer v libovolném programovacím jazyku využívající tři metody pro odstranění aliasu.
+Pro implementaci jsem zvolil jazyk Haskell, antialiasingové metody nadvzorkování, mip mapy a bilinearní interpolace.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Teorie}
 
-Tady v té kapitole je napsané jak to funguje. Ideálně nějaka ta rovnice, např. \ref{moje-rovnice}. Potom by
-tady měla byt uvedena literatura, ze které bylo čerpano, například "Metody sledování paprsku jsou popsané v \cite{Cox2008} \cite{zemcik2006}"
+\textit{Raytracing} je renderovací metoda jak z 3D scény udělat realistické 2D zobrazení. Rekurzivní princip kdy jsou z kamery vysílány paprsky
+přes zobrazovací plátno do scény s modely objektů. 
+Na obrázku \ref{fig:raytrace} je znázorněno, jak tento princip funguje.
+V základní implementaci se dělí paprsky do tří skupin
+\begin{itemize}
+\item pohledový -- z kamery do scény
+\item odražený -- z objektu sceny do objektu scény
+\item stínový -- z objektu scény ke světlu
+\end{itemize}
+
+Pro výpočet průsečíku paprsků s jednoduššími objekty je možno použít základní rovnice analytické geometrie a vektorové algebry, které 
+jsou k dispozici například v dokumentu Vector Algebra for Ray Tracing \cite{vectoralgerba}.
+
+Při použití textur může docházet v obraze k nežádoucímu efektu zvanému \textit{aliasing}. 
+V případě, že objekt má texturu obsahující příliš častou změnu barev, 
+a objekt je ve velké vzdálenosti kde paprsky nevzorkují povrch objektu dostatečně často, jeví
+se pozorovateli textura velmi zkresleně. Pro zmírnění tohoto efektu lze použít mimo jiné použít
+\begin{itemize}
+\item mip mapy -- několik textur s ruzným rozlišením v jediné textuře
+\item supersampling -- nadvzorkování pixelu posíláním paprsků v rozích pixelu
+\item bilinearní interpolaci -- nalezení přibližné hodnoty barvy ve spojitém prostoru z diskrétní textury
+\end{itemize}
 
 
-\begin{equation}
-  \label{moje-rovnice}
-  c = a + b
-\end{equation}
+%\begin{equation}
+%  \label{moje-rovnice}
+%  c = a + b
+%\end{equation}
 
-Na obrázku \ref{fig:obrazek} je ukázané jak to funguje. Nějaké schémátko pipeline..
 
 \begin{figure}[htb]
   \centering
-  \includegraphics[width=5cm,keepaspectratio]{obrazek.jpg}
-  \caption{Nějaký ten diagram, třeba převzaný z \cite{wikipedia}}
-  \label{fig:obrazek}
+  \includegraphics[width=10cm,keepaspectratio]{Ray_trace_diagram.png}
+  \caption{Schéma sledování paprsků do scény, převzatý z wikipedie \cite{wikipedia}}
+  \label{fig:raytrace}
 \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Popis řešení}
 
-Tady stručně popište, jakým způsobem jste prakticky projekt řešili. Uveďte zejména použité
-technologie a algoritmy. Zaměřte se hlavně na zajímavé a důležité části implementace a také na
-problémy, které jste řešili. Není nutné popisovat každou třídu.
+Jelikož Haskell je ryze funkcionální jazyk, bez použítí monád je kód velmi transparentní. Kód je rozdělen do modulů
+\texttt{Math.hs}, \texttt{Phong.hs}, \texttt{Raytracer.hs}, \texttt{Scene.hs}, \texttt{Data_types.hs} a \texttt{main.hs}. 
+Jádro celého algoritmu tkví ve funkci \texttt{raytracer} a \texttt{ray\_trace}. 
 
-Např. uveďte, jak jste matematický popis z předchozí kapitoly implementovali prakticky.
+\begin{verbatim}
+raytracer :: [Color]
+raytracer = map (rt) view_grid
+    where
+        rt point = ray_trace get_depth 
+            (Ray (vec point) camera_position point)
+        vec point = normalize (point `sub` camera_position)
+\end{verbatim}
 
+Funkce \texttt{raytracer} vrhá paprsky do scény a pro výpočet výsledné barvy volá funkcí \texttt{ray\_trace}. Funkce vrací list barev,
+který je předán funkci \texttt{png}, která z listu vytvoří obrázek formátu png.
+
+\begin{verbatim}
+ray_trace :: Int -> Ray -> Color 
+ray_trace depth ray@(Ray vector source dest)  
+    | on_ray_intersections == [] = background_color
+    | otherwise = (sum_phong (apply_shade get_phong)) + reflection_color 
+    where
+        all_intersections = concat (map 
+            (get_intersections ray) scene)
+        intersections = map_filter_distance dest 
+            all_intersections
+        on_ray_intersections = filter 
+            ((is_point_on_ray ray) . (point . snd)) 
+            intersections
+        closest_intersection = snd (minimum on_ray_intersections) 
+        get_phong = phong closest_intersection 
+            camera_position light_position
+        shade = get_shade (point closest_intersection)
+        apply_shade (PhongColor a d s) = 
+            (PhongColor a ((fst shade) `mul_color` d) 
+            ((snd shade) `mul_color` s))
+        reflection_color = reflection (depth-1) closest_intersection
+\end{verbatim}
+
+Funkce \texttt{ray\_trace} bere dva parametry, hloubku raytracingu a paprsek. Vrací výslednou barvu pro daný vržený paprsek.
+
+Procedurální textury jsou implementovány pomocí funkce \texttt{}, pro výpočet souřadnic neporcedurální textury a její namapování na objekt,
+což je převod 3D souřadnice do 2D, slouží funkce \texttt{uv\_map}. Mip mapy a bilinearní filtrování jsou jako samostatný typ materiálu, stejně jako všechny
+ostatní typy textur. Při výpočtu supersamplingu je ve funkci \texttt{raytrace} před funkí \texttt{ray\_trace}
+volána funkce \texttt{supersample}, která paprsek nadvzorkuje, počítá průměr a v případě potřeby nadvzorkuje znovu. Je možné použít kombinace
+více různých metod pro potlačení aliasu v rámci jednoho obrázku.
+
+Implementováno byl phongův osvětlovací model, pomocí funkce se signaturou: 
+\begin{verbatim}
+    phong :: Intersection -> Dim3 -> Dim3 -> PhongColor 
+\end{verbatim}
+Jako parametry bere průsečík, pozici světla a pozici kamery, vrací barvu tohoto průsečíku.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Vyhodnocení}
 
-Tady by mělo být napsané jak to funguje. Protože se jedná o počítačovou grafiku nebo 
-vidění, tak by tady měl byt screenshot, ze ktereho bude poznat jak to funguje.
-K tomu by měla být idealně tabulka s vyhodnocením jak přesně/rychle to funguje. 
+supersample.png
+
+srovnání metod 2 a 2
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Závěr}
 
-Tady by mělo být stručně napsané jak to funguje.
+Použité metody pro potlačení aliasu jsou patrné i bez důkladného prozkoumání, zpomalení algoritmu je vzhledem k původní
+době výpočtu přijatelné.
 
-
-\bibliographystyle{alpha}
-\begin{flushleft}
-  \bibliography{project}
-\end{flushleft}
-
-%\appendix
-%\newpage
-%\section{}
-
+%
+%
+% LITERATURA
+% ======================
+\newpage
+{%
+    \renewcommand{\refname}{Literatura} % Text nadpisu thebibliography.
+    \newcommand{\bi}[4]{\bibitem{#1}\textit{#2.} #3\\{}$<$\url{#4}$>$}%
+    %\newcommand{\Dont}[1]{}%
+    \newcommand{\citdatum}[1][2011-10-08]{$[$cit.~{#1}$]$}%
+%
+\begin{thebibliography}{MM}%
+% Vzor: \bi{label}{Název}{Poznámky.}{http://www.adresa.cz/}%
+\bi{vectoralgebra}{Vector Algebra for Ray Tracing}{\citdatum[2012-11-24]}
+    {http://tom.cs.byu.edu/~455/rt.pdf}
+\bi{wikipedia}{Wikipedia, The Free Encyclopedia}{\citdatum[2012-11-24]}
+    {http://en.wikipedia.org/}
+\end{thebibliography}}
 \end{document}
