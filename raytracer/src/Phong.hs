@@ -8,8 +8,6 @@ import Data_types
 import Math
 import Scene
 
-
-
 sum_phong :: PhongColor -> Color
 sum_phong (PhongColor d a s) = d+a+s
 
@@ -19,10 +17,10 @@ phong isec light_pos camera_pos = phong_color
         phong_color = (PhongColor diffuse ambient specular)
         object_tex_type = texture (material (object isec)) 
         object_color 
-            | object_tex_type == 1 = checked_texture_procedural (point isec)   
-            | object_tex_type == 4 = checked_texture (point isec) (shape (object isec))
-            | object_tex_type == 3 = checked_bilinear_texture (point isec) (shape (object isec))
-            | object_tex_type == 2 = checked_mip_texture (point isec) (shape (object isec))
+            | object_tex_type == Procedural = checked_texture_procedural (point isec)   
+            | object_tex_type == Checked = checked_texture (point isec) (shape (object isec))
+            | object_tex_type == Bilinear = checked_bilinear_texture (point isec) (shape (object isec))
+            | object_tex_type == Mip = checked_mip_texture (point isec) (shape (object isec))
             | otherwise = color (object isec)
         object_material = material (object isec)
         ambient = (Color 0.1 0.1 0.1) 

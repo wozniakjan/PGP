@@ -25,7 +25,7 @@ import Data_types
 -- Frame buffer, projection of entire scene, first parameter is down left
 -- corner, second parameter is up rigt corner. Returns grid of pixels
 step :: Double
-step = 0.05
+step = 0.5
 
 get_frame :: Dim3 -> Dim3 -> [Dim3]
 get_frame down_left@(Point x y z) up_right@(Point x' y' z') =
@@ -43,7 +43,7 @@ light_color :: PhongColor
 light_color = PhongColor (Color 0.5 0.5 0.5) (Color 0.8 0.8 0.8) (Color 1.0 1.0 1.0)
 
 light_material :: Material
-light_material = Material 1 0 0
+light_material = Material 1 0 Plain
 
 view_grid_width :: Double
 view_grid_width = 100
@@ -152,12 +152,12 @@ checked_mip_texture p s = mip_tex uv distance
         distance = mag p
 
 --material
-shiny_material = (Material 100 0.6 0)
-matt_material = (Material 100 0.1 0)
-checked_material = (Material 100 0 1)
-checked_texture_material = (Material 100 0 2)
-checked_texture_bilinear_material = (Material 100 0 3)
-checked_texture_mip_material = (Material 100 0 4)
+shiny_material = (Material 100 0.6 Plain)
+matt_material = (Material 100 0.1 Plain)
+checked_material = (Material 100 0 Checked)
+checked_texture_material = (Material 100 0 Procedural)
+checked_texture_bilinear_material = (Material 100 0 Bilinear)
+checked_texture_mip_material = (Material 100 0 Mip)
 
 sphere_one = (Object 
                 (Sphere (Point 15 60 50) 30) 

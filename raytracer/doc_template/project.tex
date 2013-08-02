@@ -14,7 +14,7 @@
 \usepackage{color}
 \usepackage{url}
 \inputencoding{utf8}
-%\usepackage[bf]{caption2}
+\usepackage{float}
 \usepackage{hyperref}
 \usepackage[all]{hypcap}
 \hypersetup{colorlinks=false, linkbordercolor=1 1 1, citebordercolor=1 1 1}
@@ -45,7 +45,7 @@ Pro implementaci jsem zvolil jazyk Haskell, antialiasingové metody nadvzorková
 \section{Teorie}
 
 \textit{Raytracing} je renderovací metoda jak z 3D scény udělat realistické 2D zobrazení. Rekurzivní princip kdy jsou z kamery vysílány paprsky
-přes zobrazovací plátno do scény s modely objektů. 
+přes zobrazovací plátno do scény s modely objektů\cite{pgr}. 
 Na obrázku \ref{fig:raytrace} je znázorněno, jak tento princip funguje.
 V základní implementaci se dělí paprsky do tří skupin
 \begin{itemize}
@@ -55,12 +55,12 @@ V základní implementaci se dělí paprsky do tří skupin
 \end{itemize}
 
 Pro výpočet průsečíku paprsků s jednoduššími objekty je možno použít základní rovnice analytické geometrie a vektorové algebry, které 
-jsou k dispozici například v dokumentu Vector Algebra for Ray Tracing \cite{vectoralgerba}.
+jsou k dispozici například v dokumentu Vector Algebra for Ray Tracing \cite{vbr}.
 
 Při použití textur může docházet v obraze k nežádoucímu efektu zvanému \textit{aliasing}. 
 V případě, že objekt má texturu obsahující příliš častou změnu barev, 
 a objekt je ve velké vzdálenosti kde paprsky nevzorkují povrch objektu dostatečně často, jeví
-se pozorovateli textura velmi zkresleně. Pro zmírnění tohoto efektu lze použít mimo jiné použít
+se pozorovateli textura velmi zkresleně. Pro zmírnění tohoto efektu lze použít mimo jiné použít \cite{pgr}
 \begin{itemize}
 \item mip mapy -- několik textur s ruzným rozlišením v jediné textuře
 \item supersampling -- nadvzorkování pixelu posíláním paprsků v rozích pixelu
@@ -86,7 +86,7 @@ se pozorovateli textura velmi zkresleně. Pro zmírnění tohoto efektu lze pou�
 \section{Popis řešení}
 
 Jelikož Haskell je ryze funkcionální jazyk, bez použítí monád je kód velmi transparentní. Kód je rozdělen do modulů
-\texttt{Math.hs}, \texttt{Phong.hs}, \texttt{Raytracer.hs}, \texttt{Scene.hs}, \texttt{Data_types.hs} a \texttt{main.hs}. 
+\texttt{Math.hs}, \texttt{Phong.hs}, \texttt{Raytracer.hs}, \texttt{Scene.hs}, \texttt{Data\_types.hs} a \texttt{main.hs}. 
 Jádro celého algoritmu tkví ve funkci \texttt{raytracer} a \texttt{ray\_trace}. 
 
 \begin{verbatim}
@@ -105,28 +105,29 @@ který je předán funkci \texttt{png}, která z listu vytvoří obrázek formá
 ray_trace :: Int -> Ray -> Color 
 ray_trace depth ray@(Ray vector source dest)  
     | on_ray_intersections == [] = background_color
-    | otherwise = (sum_phong (apply_shade get_phong)) + reflection_color 
+    | otherwise = (sum_phong (apply_shade get_phong)) 
+                    + ref_color 
     where
         all_intersections = concat (map 
             (get_intersections ray) scene)
         intersections = map_filter_distance dest 
             all_intersections
-        on_ray_intersections = filter 
+        on_ray_intersect = filter 
             ((is_point_on_ray ray) . (point . snd)) 
             intersections
-        closest_intersection = snd (minimum on_ray_intersections) 
+        closest_intersection = snd (minimum on_ray_intersect) 
         get_phong = phong closest_intersection 
             camera_position light_position
         shade = get_shade (point closest_intersection)
         apply_shade (PhongColor a d s) = 
             (PhongColor a ((fst shade) `mul_color` d) 
             ((snd shade) `mul_color` s))
-        reflection_color = reflection (depth-1) closest_intersection
+        ref_color = reflection (depth-1) closest_intersection
 \end{verbatim}
 
 Funkce \texttt{ray\_trace} bere dva parametry, hloubku raytracingu a paprsek. Vrací výslednou barvu pro daný vržený paprsek.
 
-Procedurální textury jsou implementovány pomocí funkce \texttt{}, pro výpočet souřadnic neporcedurální textury a její namapování na objekt,
+Z procedurálních textur je implementována pouze 3D šachovnice, a to funkcí funkce \texttt{checked\_texture\_procedural}, pro výpočet souřadnic neporcedurální textury a její namapování na objekt,
 což je převod 3D souřadnice do 2D, slouží funkce \texttt{uv\_map}. Mip mapy a bilinearní filtrování jsou jako samostatný typ materiálu, stejně jako všechny
 ostatní typy textur. Při výpočtu supersamplingu je ve funkci \texttt{raytrace} před funkí \texttt{ray\_trace}
 volána funkce \texttt{supersample}, která paprsek nadvzorkuje, počítá průměr a v případě potřeby nadvzorkuje znovu. Je možné použít kombinace
@@ -142,9 +143,53 @@ Jako parametry bere průsečík, pozici světla a pozici kamery, vrací barvu to
 
 \section{Vyhodnocení}
 
-supersample.png
+Zde je uvedeno pár vybraných obrázků demonstrujících implementované techniky a tabulka s časy renderování.
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=9cm,keepaspectratio]{nice.png}
+  \caption{Renderovaný obrázek pomocí supersamplingu.}
+  \label{fig:nice}
+\end{figure}
 
-srovnání metod 2 a 2
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=8cm,keepaspectratio]{comparison4.png}
+  \caption{Srovnání čtyř textur procedurální, bilineární interpolace, běžná textura, mip mapa.}
+  \label{fig:comp}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=10cm]{comparison_mip.png}
+  \caption{Srovnání mip mapy s běžnou texturou.}
+  \label{fig:comp1}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=10cm]{pic_comparison.png}
+  \caption{Bilineární interpolace.}
+  \label{fig:comp2}
+\end{figure}
+
+
+Renderován byl obrázek 1000 x 1000 pixelů s hloubkou rekurze 5.
+\begin{table}[H]
+\begin{center}
+\renewcommand{\arraystretch}{1.3} %zvetseni mezer mezi radky v tabulce
+\begin{tabular}{|l|c|}\hline%
+Metoda&Doba výpočtu\\\hline%
+raytracing&1 min 23 sec\\
+supersampling&2 min 5 sec\\
+bilinear interpolation&1 min 28 sec\\
+\hline
+\end{tabular}
+\renewcommand{\arraystretch}{1} %zvetseni mezer mezi radky v tabulce
+\end{center}
+\caption{Srovnání základní metody, supersamplingu a bilineární interpolace.}
+\label{ps_history}
+\end{table}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -166,7 +211,8 @@ době výpočtu přijatelné.
 %
 \begin{thebibliography}{MM}%
 % Vzor: \bi{label}{Název}{Poznámky.}{http://www.adresa.cz/}%
-\bi{vectoralgebra}{Vector Algebra for Ray Tracing}{\citdatum[2012-11-24]}
+\bibitem{pgr} A. Herout. \textit{Počítačová grafika -- studijní opora}. 2008-12-08.
+\bi{vbr}{Vector Algebra for Ray Tracing}{\citdatum[2012-11-24]}
     {http://tom.cs.byu.edu/~455/rt.pdf}
 \bi{wikipedia}{Wikipedia, The Free Encyclopedia}{\citdatum[2012-11-24]}
     {http://en.wikipedia.org/}

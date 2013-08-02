@@ -31,6 +31,7 @@ uv_map point sp@(Sphere c r) = (u, v)
         d = normalize (point `sub` c)
         u = 0.5 - ( (atan2 (z d) (x d)) / (2*pi) )
         v = 0.5 - ( (asin (y d)) / (2*pi) )
+--uv_map _ _ = (0,0)
 
 xor :: Bool -> Bool -> Bool
 xor True b  = not b

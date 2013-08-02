@@ -7,6 +7,7 @@ module Data_types(
     Color(Color),
     PhongColor(PhongColor),
     Material(Material),
+    TextureType(Plain,Checked,Procedural,Bilinear,Mip),
     x, y, z, 
     vector, source, dest,
     a, b, c,
@@ -18,9 +19,11 @@ module Data_types(
     ambient, diffuse, specular, 
     shiny, reflectivity,
     average_colors,
-    mul_color
+    mul_color,
 ) where
 
+data TextureType = Procedural | Bilinear | Mip | Checked | Plain
+    deriving (Eq, Show, Ord)
 
 data Dim3 = Vector { x :: Double, y :: Double, z :: Double }
     | Point { x :: Double, y :: Double, z :: Double }
@@ -69,7 +72,7 @@ instance Num PhongColor where
     signum = error "N/A"
     fromInteger = error "N/A"
 
-data Material = Material { shiny :: Double, reflectivity :: Double, texture :: Int }
+data Material = Material { shiny :: Double, reflectivity :: Double, texture :: TextureType}
     deriving(Show, Eq, Ord)
 
 div_color :: Color -> Double -> Color
