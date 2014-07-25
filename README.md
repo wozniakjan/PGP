@@ -10,4 +10,4 @@ Very naive implementation of Raytracing renderer using basic Haskell language fe
 - procedural & regular textures
 - triangular plane & sphere objects
 
-![Alt text](http://github.com/wozniakjan/raytracehs/pics/supersample.png?raw=true "Example picture")
+![Alt text](https://raw.githubusercontent.com/wozniakjan/raytracehs/master/pics/supersample.png "Example picture")
